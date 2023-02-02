@@ -51,3 +51,31 @@ const romenToInt = function toInt(rome) {
 let finalNumber = romenToInt('MCMXCIV');
 
 console.log(finalNumber); //returns 1994
+
+/* //!Faster Way
+var wordPattern = function(pattern, string) {
+  const map1 = {};
+  const map2 = {};
+  const strings = string.split(' ');
+
+  if (strings.length !== pattern.length) return false;
+
+  for (let idx = 0; idx < pattern.length; ++idx) {
+      const p = pattern[idx];
+      const s = strings[idx];
+
+      if (p in map1) {
+          if (map1[p] !== s) return false;
+          continue;
+      } 
+
+      map1[p] = s;
+
+      if (s in map2 && map2[s] !== p) return false; 
+
+      map2[s] = p;
+  }
+
+  return true;
+};
+*/

@@ -52,4 +52,4 @@ const wordPattern = function (pattern, s) {
   return answer;
 };
 
-console.log(wordPattern('abbxfg', 'Horse car car ca Turkish callofduty2'));
+console.log(wordPattern('abbxfg', 'Horse car car ca Turkish callofduty2')); //Test
