@@ -11,3 +11,9 @@ let object1 = {
 console.log(object1['a']);
 
 console.log('helo' + 1);
+
+const object2 = { 0.5: 1, 2: 4 };
+
+object2[2] += 1;
+
+console.log(object2);

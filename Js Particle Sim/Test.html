@@ -117,7 +117,7 @@
       const ctx = canvas.getContext('2d');
 
       function draw() {
-        ctx.clearRect(0, 0, GRID_WIDTH, GRID_HEIGHT);
+        ctx.clearRect(0, 0, BOX_WIDTH, BOX_HEIGHT);
         for (let particle of particles) {
           ctx.fillRect(particle.x, particle.y, 5, 5);
         }
