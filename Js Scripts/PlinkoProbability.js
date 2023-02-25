@@ -1,5 +1,5 @@
 const BOX_COUNT = 5; //How many boxes there will be
-const BALL_DROP = 1000000000; //How many balls will be droped
+const BALL_DROP = 1; //How many balls will be dropped
 
 // Factoriel Function
 const factorial = (() => {
@@ -20,13 +20,26 @@ const combination = (n, r) => {
   return factorial(n) / (factorial(n - r) * factorial(r));
 };
 
+const largeCombination = (n, r) => {
+  if (r === 0) {
+    return n;
+  }
+
+  let result = 1;
+  for (let i = n; i > n - r; i--) {
+    result *= i;
+  }
+  result = result / factorial(r);
+  return result;
+};
+
 //Calculating closest Ideal result to final result for comparing it with the final result
 const idealResult = Array.from({ length: BOX_COUNT }, (e, i) =>
   combination(BOX_COUNT - 1, i)
 );
 
 const pascalTotal = idealResult.reduce((total, value) => total + value, 0);
-const closestNumber = Math.floor(BALL_DROP / pascalTotal);
+const closestNumber = Math.round(BALL_DROP / pascalTotal);
 
 const idealResultScaled = idealResult.map((value) => value * closestNumber);
 
@@ -61,26 +74,40 @@ let finalResult = RandomBoxExperiment();
 
 //Calculating the deflection
 let sumDeflection = {};
-for (let i = 1; i < BOX_COUNT + 1; i++) {
-  if (idealResultScaled[i] >= finalResult[i]) {
-    sumDeflection[i] = idealResultScaled[i] / finalResult[i] - 1;
-  } else if (idealResultScaled[i] < finalResult[i]) {
-    sumDeflection[i] = finalResult[i] / idealResultScaled[i] - 1;
-  }
+for (let i = 0; i < BOX_COUNT; i++) {
+  sumDeflection[i + 1] = Math.abs(
+    (finalResult[i] * 100) / idealResultScaled[i] - 100
+  );
 
-  if (sumDeflection[i] === Infinity) {
+  if (sumDeflection[i + 1] === Infinity) {
     sumDeflection[i] = 'NaN (Infinity)';
   }
 }
 
-console.log('=======================================================');
+//Calculating the probability of the result
+const allPossibleResults = largeCombination(
+  BALL_DROP + BOX_COUNT - 1,
+  BOX_COUNT - 1
+);
 
-//Console.log ing the results here:
-console.log('Ideal Result: ');
-console.log(idealResultScaled); //This logs the ideal result
-console.log('Simulation Result: ');
-console.log(finalResult); //This logs the final result
-console.log('Deflection: ');
-console.log(sumDeflection); //This logs the Deflection numbers
+const Log = (n) => console.log(n); //Console logs the argument
+const LogNL = (n) => process.stdout.write(n); //Console logs the argument without a new line
 
-console.log('=======================================================');
+Log('=======================================================');
+
+//Logg ing the results here:
+Log('Box Count: ' + BOX_COUNT + ', Ball Count: ' + BALL_DROP);
+Log(' ');
+
+Log('Ideal Result: ');
+Log(idealResultScaled); //This logs the ideal result
+Log('Simulation Result: ');
+Log(finalResult); //This logs the final result
+Log('Deflection %: ');
+Log(sumDeflection); //This logs the Deflection numbers
+
+Log(' ');
+LogNL('Total Number Of Probabilities: ');
+Log(allPossibleResults);
+
+Log('=======================================================');
