@@ -16,21 +16,14 @@ const Combination = (n, r) => {
 };
 
 //Calculating closest Ideal result to final result for comparing it with the final result
-const idealResult = {};
-for (let i = 1; i < BOX_COUNT + 1; i++) {
-  idealResult[i] = Combination(BOX_COUNT - 1, i - 1);
-}
+const idealResult = Array.from({ length: BOX_COUNT }, (e, i) =>
+  combination(BOX_COUNT - 1, i)
+);
 
-let pascalTotal = 0;
-
-Object.values(idealResult).forEach((element) => {
-  pascalTotal += element;
-});
+const pascalTotal = idealResult.reduce((total, value) => total + value, 0);
 const closestNumber = Math.floor(BALL_DROP / pascalTotal);
 
-Object.keys(idealResult).forEach((element) => {
-  idealResult[element] *= closestNumber;
-});
+const idealResultScaled = idealResult.map((value) => value * closestNumber);
 
 //The function that simulates random ball behaviour
 const LeftOrRight = (n) => {
