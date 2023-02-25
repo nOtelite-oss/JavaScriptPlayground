@@ -1,14 +1,32 @@
-let sumNumber1 = 0;
-let sumNumber2 = 0;
+const BOX_COUNT = 5;
+const BALL_DROP = 9999;
 
-const repeatTime = 10000000;
+function LeftOrRight(n) {
+  let sumNumber = 0;
 
-for (let i = 0; i < repeatTime; i++) {
-  sumNumber1 += Math.random() * 10;
+  for (let i = 0; i < n; i++) {
+    const randomNumber = Math.random() * 10 + 1;
+    if (randomNumber >= 6) {
+      sumNumber += 1;
+    } else {
+      sumNumber -= 1;
+    }
+  }
+
+  return sumNumber;
 }
-for (let i = 0; i < repeatTime; i++) {
-  sumNumber2 += Math.floor(Math.random() * 10);
+
+function RandomBoxExperiment() {
+  const sumBoxes = new Array(BOX_COUNT).fill(0);
+  const middleBox = Math.floor(BOX_COUNT / 2);
+
+  for (let i = 0; i < BALL_DROP; i++) {
+    const whichBox =
+      middleBox + LeftOrRight(BOX_COUNT % 2 === 0 ? BOX_COUNT - 1 : BOX_COUNT);
+    sumBoxes[whichBox] += 1;
+  }
+
+  console.log(sumBoxes);
 }
 
-console.log(sumNumber1 / repeatTime + ' ' + sumNumber2 / repeatTime);
-console.log(6 > 6.1);
+RandomBoxExperiment();

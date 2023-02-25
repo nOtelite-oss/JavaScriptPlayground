@@ -1,23 +1,21 @@
-const BOX_COUNT = 5;
-const BALL_DROP = 99999999;
+const BOX_COUNT = 4; //How many boxes there will be
+const BALL_DROP = 100; //How many balls will be droped
 
+// Factoriel Function
 const Factoriel = (n) => {
-  if (n === 0) {
-    return 1;
+  let result = 1;
+  for (let i = 2; i <= n; i++) {
+    result *= i;
   }
-
-  let sumFactoriel = 1;
-  for (let i = n; i > 0; i--) {
-    sumFactoriel *= i;
-  }
-
-  return sumFactoriel;
+  return result;
 };
 
+//Combination Function
 const Combination = (n, r) => {
   return Factoriel(n) / (Factoriel(n - r) * Factoriel(r));
 };
 
+//Calculating closest Ideal result to final result for comparing it with the final result
 const idealResult = {};
 for (let i = 1; i < BOX_COUNT + 1; i++) {
   idealResult[i] = Combination(BOX_COUNT - 1, i - 1);
@@ -34,34 +32,23 @@ Object.keys(idealResult).forEach((element) => {
   idealResult[element] *= closestNumber;
 });
 
-console.log(idealResult);
-
+//The function that simulates random ball behaviour
 const LeftOrRight = (n, oddOrEven) => {
   let sumNumber = 0;
 
-  if (oddOrEven) {
-    for (let i = 0; i < n; i++) {
-      const randomNumber = Math.random();
-      if (randomNumber >= 0.501) {
-        sumNumber += 0.5;
-      } else {
-        sumNumber -= 0.5;
-      }
-    }
-  } else {
-    for (let i = 0; i < n; i++) {
-      const randomNumber = Math.random();
-      if (randomNumber >= 0.501) {
-        sumNumber += 1;
-      } else {
-        sumNumber -= 1;
-      }
+  for (let i = 0; i < n; i++) {
+    const randomNumber = Math.random();
+    if (randomNumber >= 0.501) {
+      sumNumber += 0.5;
+    } else {
+      sumNumber -= 0.5;
     }
   }
 
-  return sumNumber;
+  return sumNumber * (!oddOrEven ? 2 : 1) + (!oddOrEven ? 1 : 0);
 };
 
+//Final result function
 const RandomBoxExperiment = () => {
   let sumBoxes = {};
 
@@ -69,13 +56,17 @@ const RandomBoxExperiment = () => {
     sumBoxes[i] = 0;
   }
 
-  const middleBox = Math.round(BOX_COUNT / 2);
+  const middleBox = Math.ceil(BOX_COUNT / 2);
 
-  if (BOX_COUNT % 2 === 0) {
+  if ((BOX_COUNT & 1) === 0) {
+    for (let i = 0; i < BALL_DROP; i++) {
+      const whichBox = LeftOrRight(BOX_COUNT - 1, false);
+      sumBoxes[middleBox + whichBox] += 1;
+    }
   } else {
     for (let i = 0; i < BALL_DROP; i++) {
-      const WhichBox = LeftOrRight(BOX_COUNT - 1, true);
-      sumBoxes[middleBox + WhichBox] += 1;
+      const whichBox = LeftOrRight(BOX_COUNT - 1, true);
+      sumBoxes[middleBox + whichBox] += 1;
     }
   }
 
@@ -84,12 +75,20 @@ const RandomBoxExperiment = () => {
 
 let sumBoxes = RandomBoxExperiment();
 
-console.log(sumBoxes);
-
+//Calculating the deflection
 let sumDeflection = {};
-
 for (let i = 1; i < BOX_COUNT + 1; i++) {
   sumDeflection[i] = idealResult[i] / sumBoxes[i] - 1;
 }
 
-console.log(sumDeflection);
+console.log('=======================================================');
+
+//Console.log ing the results here:
+console.log('Ideal Result: ');
+console.log(idealResult); //This logs the ideal result
+console.log('Simulation Result: ');
+console.log(sumBoxes); //This logs the final result
+console.log('Deflection: ');
+console.log(sumDeflection); //This logs the Deflection numbers
+
+console.log('=======================================================');
