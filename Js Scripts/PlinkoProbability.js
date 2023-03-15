@@ -1,6 +1,9 @@
-const BOX_COUNT = 35; //How many boxes there will be
-const BALL_DROP = 2000000000; //How many balls will be dropped
-const SOLUTION_WAY = 1; //0 --> Calculating ball fall pattern, 1 --> Calculating ball fall with Gaussian distribution>
+const BOX_COUNT = 5; //How many boxes there will be. Note that if you give a value greater than 19 then ideal result is all 0. I dont know why.
+const BALL_DROP = 20000000; //How many balls will be dropped
+const SOLUTION_WAY = 1;
+
+//If SOLUTION_WAY is set to 0, the simulation calculates the ball's fall pattern by randomly choosing whether each ball should go to the left or the right of the box.
+//If SOLUTION_WAY is set to 1, the simulation calculates the ball's fall pattern using a Gaussian distribution based on the probability of each box. Note that this is faster.
 
 // Factoriel Function
 const factorial = (() => {
@@ -17,9 +20,24 @@ const factorial = (() => {
 })();
 
 // Combination Function
-const combination = (n, r) => {
-  return factorial(n) / (factorial(n - r) * factorial(r));
-};
+const combination = (() => {
+  const cache = {};
+  const memoized = (n, r) => {
+    if (n === r || r === 0) {
+      return 1;
+    }
+    if (cache[n]?.[r]) {
+      return cache[n][r];
+    }
+    const result = memoized(n - 1, r - 1) + memoized(n - 1, r);
+    if (!cache[n]) {
+      cache[n] = {};
+    }
+    cache[n][r] = result;
+    return result;
+  };
+  return memoized;
+})();
 
 //Calculating closest Ideal result to final result for comparing it with the final result
 const idealResult = Array.from({ length: BOX_COUNT }, (e, i) =>
@@ -138,6 +156,12 @@ for (let i = 0; i < BOX_COUNT; i++) {
     (finalResult[i] * 100) / idealResultScaled[i] - 100
   );
 }
+
+const avarageDeflection =
+  Object.values(sumDeflection).reduce((total, value) => total + value, 0) /
+  Object.values(sumDeflection).length;
+
+sumDeflection['Avarage Deflection'] = avarageDeflection;
 
 const Log = (n) => console.log(n); //Console logs the argument
 const LogNL = (n) => process.stdout.write(n); //Console logs the argument without a new line
