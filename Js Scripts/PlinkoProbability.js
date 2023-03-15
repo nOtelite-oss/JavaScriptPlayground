@@ -1,5 +1,6 @@
-const BOX_COUNT = 5; //How many boxes there will be
-const BALL_DROP = 1; //How many balls will be dropped
+const BOX_COUNT = 35; //How many boxes there will be
+const BALL_DROP = 2000000000; //How many balls will be dropped
+const SOLUTION_WAY = 1; //0 --> Calculating ball fall pattern, 1 --> Calculating ball fall with Gaussian distribution>
 
 // Factoriel Function
 const factorial = (() => {
@@ -20,19 +21,6 @@ const combination = (n, r) => {
   return factorial(n) / (factorial(n - r) * factorial(r));
 };
 
-const largeCombination = (n, r) => {
-  if (r === 0) {
-    return n;
-  }
-
-  let result = 1;
-  for (let i = n; i > n - r; i--) {
-    result *= i;
-  }
-  result = result / factorial(r);
-  return result;
-};
-
 //Calculating closest Ideal result to final result for comparing it with the final result
 const idealResult = Array.from({ length: BOX_COUNT }, (e, i) =>
   combination(BOX_COUNT - 1, i)
@@ -48,7 +36,7 @@ const LeftOrRight = (n) => {
   let sumNumber = 0;
 
   for (let i = 0; i < n; i++) {
-    sumNumber += Math.random() >= 0.5001 ? 0.5 : -0.5;
+    sumNumber += Math.random() >= 0.50001 ? 0.5 : -0.5;
   }
 
   return sumNumber;
@@ -59,14 +47,85 @@ const RandomBoxExperiment = () => {
   let sumBoxes = new Array(BOX_COUNT).fill(0);
   const middleBox = Math.ceil(BOX_COUNT / 2);
 
-  for (let i = 0; i < BALL_DROP; i++) {
-    const whichBox =
-      middleBox +
-      ((BOX_COUNT & 1) === 0 ? 0.5 : 0) +
-      LeftOrRight(BOX_COUNT - 1);
-    sumBoxes[whichBox - 1] += 1;
-  }
+  if (BALL_DROP > 20000000) {
+    let section = 0;
+    let processParts = 50;
+    console.log('Processing:');
+    process.stdout.write('0%');
 
+    if (SOLUTION_WAY === 0) {
+      for (let i = 0; i < processParts; i++) {
+        for (let i = 0; i < BALL_DROP / processParts; i++) {
+          const whichBox =
+            middleBox +
+            ((BOX_COUNT & 1) === 0 ? 0.5 : 0) +
+            LeftOrRight(BOX_COUNT - 1);
+          sumBoxes[whichBox - 1] += 1;
+        }
+
+        section += 100 / processParts;
+        process.stdout.write(` ${section}%`);
+      }
+    } else if (SOLUTION_WAY === 1) {
+      const boxDropPossibilitys = [];
+      for (let i = 0; i < BOX_COUNT; i++) {
+        boxDropPossibilitys.push(idealResult[i] / pascalTotal);
+      }
+
+      let currentP = boxDropPossibilitys[0];
+      let randomNumber = Math.random();
+      for (let i = 0; i < processParts; i++) {
+        for (let i = 0; i < BALL_DROP / processParts; i++) {
+          let currentP = boxDropPossibilitys[0];
+          let randomNumber = Math.random();
+
+          for (let i = 0; i < BOX_COUNT; i++) {
+            if (randomNumber < currentP) {
+              sumBoxes[i] += 1;
+              currentP = boxDropPossibilitys[0];
+              randomNumber = Math.random();
+              break;
+            } else {
+              currentP += boxDropPossibilitys[i + 1];
+            }
+          }
+        }
+        section += 100 / processParts;
+        process.stdout.write(` ${section}%`);
+      }
+    }
+  } else {
+    if (SOLUTION_WAY === 0) {
+      for (let i = 0; i < BALL_DROP; i++) {
+        const whichBox =
+          middleBox +
+          ((BOX_COUNT & 1) === 0 ? 0.5 : 0) +
+          LeftOrRight(BOX_COUNT - 1);
+        sumBoxes[whichBox - 1] += 1;
+      }
+    } else if (SOLUTION_WAY === 1) {
+      const boxDropPossibilitys = [];
+      for (let i = 0; i < BOX_COUNT; i++) {
+        boxDropPossibilitys.push(idealResult[i] / pascalTotal);
+      }
+
+      for (let i = 0; i < BALL_DROP; i++) {
+        let currentP = boxDropPossibilitys[0];
+        let randomNumber = Math.random();
+
+        for (let i = 0; i < BOX_COUNT; i++) {
+          if (randomNumber < currentP) {
+            sumBoxes[i] += 1;
+            currentP = boxDropPossibilitys[0];
+            randomNumber = Math.random();
+            break;
+          } else {
+            currentP += boxDropPossibilitys[i + 1];
+          }
+        }
+      }
+    }
+  }
   return sumBoxes;
 };
 
@@ -78,22 +137,13 @@ for (let i = 0; i < BOX_COUNT; i++) {
   sumDeflection[i + 1] = Math.abs(
     (finalResult[i] * 100) / idealResultScaled[i] - 100
   );
-
-  if (sumDeflection[i + 1] === Infinity) {
-    sumDeflection[i] = 'NaN (Infinity)';
-  }
 }
-
-//Calculating the probability of the result
-const allPossibleResults = largeCombination(
-  BALL_DROP + BOX_COUNT - 1,
-  BOX_COUNT - 1
-);
 
 const Log = (n) => console.log(n); //Console logs the argument
 const LogNL = (n) => process.stdout.write(n); //Console logs the argument without a new line
 
-Log('=======================================================');
+Log(' ');
+Log('=======================================================START');
 
 //Logg ing the results here:
 Log('Box Count: ' + BOX_COUNT + ', Ball Count: ' + BALL_DROP);
@@ -106,8 +156,4 @@ Log(finalResult); //This logs the final result
 Log('Deflection %: ');
 Log(sumDeflection); //This logs the Deflection numbers
 
-Log(' ');
-LogNL('Total Number Of Probabilities: ');
-Log(allPossibleResults);
-
-Log('=======================================================');
+Log('=======================================================END');
